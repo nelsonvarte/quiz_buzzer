@@ -22,9 +22,11 @@ app.post('/submit', (req, res) => {
     // Add new responder to the list
     responders.push({ id, name });
     console.log(`New responder: ${name} (ID: ${id})`);
-    broadcastResult(); // Broadcast update to all connected clients
+	
+    broadcastResult(true); // Broadcast update to all connected clients
   } else {
     console.log(`Responder already submitted: ${name} (ID: ${id})`);
+	broadcastResult(false);
   }
 
   res.status(200).send({ status: 'received', id, name });
@@ -34,7 +36,7 @@ app.post('/submit', (req, res) => {
 app.post('/reset', (req, res) => {
   responders = [];  // Clear all responders
   console.log('Reset all responders');
-  broadcastResult(); // Notify all clients
+  broadcastResult(false); // Notify all clients
   res.status(200).send({ status: 'reset' });
 });
 
@@ -43,14 +45,15 @@ const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
 // Broadcast the updated list of responders to all WebSocket clients
-function broadcastResult() {
-  const message = JSON.stringify({ responders });
+function broadcastResult(isNewResponder) {
+  const message = JSON.stringify({ responders, new: isNewResponder });
   wss.clients.forEach(client => {
     if (client.readyState === WebSocket.OPEN) {
-      client.send(message);  // Send the list of responders
+      client.send(message);
     }
   });
 }
+
 
 // Listen for WebSocket connections
 wss.on('connection', (ws) => {
