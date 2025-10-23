@@ -73,9 +73,10 @@
 </head>
 <body>
   <div id="main-container">
-  <h1>North-Bengal & Bhutan Mission Field</h1>
-  <h2>Independent Church of India</h2><br><br>
-    <h1>Quiz Competition</h1>
+  
+  <h2>Independent Church of India</h2>
+  <h1>11th KTP Group Conference 2025</h1><br><br>  
+  <h1>Quiz Competition</h1>
     <div id="first-responder">Fastest Finger: <span id="first-responder-name">None</span></div>
 
     
@@ -115,6 +116,19 @@
     // WebSocket event handler
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
+
+    // Play buzzer only when a new responder is added
+    if (data.new) {
+      try {
+        buzzerSound.currentTime = 0;
+        buzzerSound.play();
+		console.log('tried to play');
+      } catch (e) {
+        console.log('Audio autoplay blocked, wait for user interaction.');
+      }
+    }
+
+
 
       // If we have a first responder, show it prominently
       if (data.firstResponderName) {
